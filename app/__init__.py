@@ -1,10 +1,19 @@
 from flask import Flask
 from config import config_options
+from flask_bcrypt import Bcrypt
+
+
+
+
+bcrypt = Bcrypt()
 
 def create_app(config_name):
 
 # Initializing application
     app = Flask(__name__)
+    
+    #Initializing flask extensions
+    bcrypt.init_app(app)
 
 # Setting up configuration
     app.config.from_object(config_options[config_name])
