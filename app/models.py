@@ -10,8 +10,10 @@ class User(UserMixin,db.Model):
     bio = db.Column(db.String(255))
     profile_pic_path = db.Column(db.String())
     password_hash = db.Column(db.String(255))
+    posts = db.relationship('Post', backref='users')
+    comments = db.relationship('Comment', backref='users')
     
-        @property
+    @property
     def password(self):
         raise AttributeError('You cannnot read the password attribute')
 
@@ -32,8 +34,8 @@ class User(UserMixin,db.Model):
         return f'User {self.username}'
     
 
-class Pitch(db.Model):
-    __tablename__ = 'pitches'
+class Post(db.Model):
+    __tablename__ = 'posts'
     
     id = db.Column(db.Integer, primary_key=True)
     title= db.Column(db.String(50))
@@ -45,13 +47,22 @@ class Pitch(db.Model):
     likes = db.relationship('Like', backref='pitch')
 
 
-    def save_pitch(self, pitch):
-        ''' Save the pitches '''
-        db.session.add(pitch)
-        db.session.commit()    
-        
-    def __repr__(self):
-        return f"Pitch('{self.title}','{self.date_posted}')"
+    def save_post(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_post(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def get_user_posts(cls,id):
+        posts = Post.query.filter_by(user_id = id).order_by(Post.date_posted.desc()).all()
+        return posts
+
+    @classmethod
+    def get_all_posts(cls):
+        return Post.query.order_by(Post.date_posted).all()
     
     
 class Comment(db.Model):
@@ -59,7 +70,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     comment =db.Column(db.String(400))
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
-    pitches_id = db.Column(db.Integer, db.ForeignKey('pitches.id', ondelete="CASCADE"))
+    post_id = db.Column(db.Integer, db.ForeignKey('pitches.id', ondelete="CASCADE"))
     
     def save_comment(self, comment):
         ''' Save the commentss '''
@@ -74,5 +85,5 @@ class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
-    pitch_id = db.Column(db.Integer, db.ForeignKey('pitches.id', ondelete="CASCADE"))
+    post_id = db.Column(db.Integer, db.ForeignKey('pitches.id', ondelete="CASCADE"))
     
