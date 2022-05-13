@@ -1,5 +1,8 @@
+
+from . import db
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_login import UserMixin
+from datetime import datetime
 
 class User(UserMixin,db.Model):
     __tablename__ = 'users'
@@ -40,7 +43,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title= db.Column(db.String(50))
     content = db.Column(db.String(300))
-    category_id = db.Column(db.String)
+    category = db.Column(db.String)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
     comments = db.relationship('Comment', backref='pitch')
@@ -70,7 +73,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     comment =db.Column(db.String(400))
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
-    post_id = db.Column(db.Integer, db.ForeignKey('pitches.id', ondelete="CASCADE"))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id', ondelete="CASCADE"))
     
     def save_comment(self, comment):
         ''' Save the commentss '''
@@ -85,5 +88,5 @@ class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
-    post_id = db.Column(db.Integer, db.ForeignKey('pitches.id', ondelete="CASCADE"))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id', ondelete="CASCADE"))
     

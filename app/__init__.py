@@ -5,8 +5,10 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 
+
 db = SQLAlchemy()
 bcrypt = Bcrypt()
+
 
 def create_app(config_name):
 
